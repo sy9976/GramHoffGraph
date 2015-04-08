@@ -1,2 +1,2 @@
 # GramHoffGraph
-tompgraph simulator
+tomograph simulator
