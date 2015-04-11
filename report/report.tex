@@ -74,23 +74,29 @@ W roku 1905 W. Radon udowodnił następujące twierdzenie: „Obraz obiektu dwuw
 Po dokonaniu transformacji z otrzymanych wyników otrzymyje się sinogram, będący wizualizacją
 Dokonanie na wynikach rzutowania Odwrotnej Transformacji Radona umożliwia zrekonstruowanie obrazu obiektu.
 
-\subsubsection{Algorytm Brens}
+\subsubsection{Algorytm Bresenham'a}
+Służy do wyznaczania pikseli leżących na odcinku między dwoma punktami. W naszym zastosowaniu służy do wyznaczania pikseli przez które przechodzi promień oraz wyznaczenia wartości pochłoniętego promieniowania.
 
-
-\section{Technologia}
-Program zaimplementowano w języku Python korzystając z następujących biibliotek:
+\subsubsection{Technologia}
+Program zaimplementowano w języku Python korzystając z następujących bibliotek:
 \begin{itemize}
 \item skimage - wczytanie obrazu
+\item numpy - działania na macierzach
+\end{itemize}
+Zaimplementowano algorytm Bresenham'a.
+Przyjęto model tomografu o następujących parametrach:
+\begin{itemize}
+\item alfa - kąt o który obracany jest układ emiterów
+\item l - odległość układu emiterów od macierzy obrazu
+\item szerokość wiązki
+\item szerokość filtra
 \end{itemize}
 
-\section{Metoda rozwiązania}
-[transformata]
-[odwrotna]
-[implementacja brasennndsfjds]
-
 \section{Plan dalszej pracy}
-[zrobimy reszte]
-
+Do wykonania pozostało:
+- implementacja transformaty Radona pozwalajaca na wygodny dobó© parametrów
+- implementacja filtrów
+- budowa interfejsu do zmiany parametrów
 
 \bibliographystyle{apalike}
 \bibliography{sample}
