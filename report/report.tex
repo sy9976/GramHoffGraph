@@ -53,26 +53,34 @@ Według wymagań symulator ten powinien pozwalać na:
 
 \subsection{Zasada działania}
 Zasada działanie tomografu opiera się na pochłanianiu promieniowania rentgenowskiego przez ludzkie narządy.
-Niestety, narzędy organizmu ludzkiego wzajemnie się przysłaniają, co prowadzi do nakładania się na siebie obrazów poszczególnych struktur wewnętrznych człowieka.
-Zauważono, że wykonanie większej liczby zdjęć radiologicznych z różnych pozycji lampy i detektora względem badanego obiektu, a następnie obejrzenie zdjęć w stroboskopie prowadzi do poprawienia jakośi obrazu. Wprowadzono więc ruch lampy rentgenowskiej detektora wzgledme obiektu.
+Niestety, narządy organizmu ludzkiego wzajemnie się przysłaniają, co prowadzi do nakładania się na siebie obrazów poszczególnych struktur wewnętrznych człowieka.
+Zauważono, że wykonanie większej (niż jeden) liczby zdjęć radiologicznych z różnych pozycji lampy i detektora względem badanego obiektu, a następnie obejrzenie zdjęć w stroboskopie prowadzi do poprawienia jakośi obrazu. Wprowadzono więc ruch lampy rentgenowskiej detektora wzgledem obiektu.
 
-[GENERACJE]
-Od czasów wynalezienia tomografu powstawały kolejne generacje:
+\subsubsection{Generacje tomografów}
+Od czasów wynalezienia tomografu zmieniały koncepcje i usprawnienia mające na celu zwiększenie ich szybkości i wydajności.
+W związku z tym powastała poniższa klasyfikacja na generacje:
 \begin{itemize}
-\item {Generacja I} opis
-\item {Generacja II} opis
-\item {Generacja III} opis
-\item {Generacja IV} opis
+\item Generacja I - skaner składał się z pojedynczego emitera i detektora. Lampa i detektor wykonywały ruchy translacyjne i rotacyjne.
+\item Generacja II - zwiekszono liczbę detektorów co zmniejszyło liczbę ruchów translacyjnych lampy.
+\item Generacja III - wyeliminowano ruch translacyjny poprzez rozmieszczenie detektorów na łuku pierścienia obracającego się razem z lampą dookoła pacjenta.
+\item Generacja IV - detektory umieszczone zostały na stałe na pierścienu, ruch obrotowy wykonuje tylko lampa.
 \end{itemize}
 
-[TRANSFORMATA RADONA]
+W projekcie rozważa się implementację czwartej generacji.
 
-[ALGORYTM BRASENZCOMITA]
+\subsubsection{Transformata Radona}
+Używana do dokonania transformacji wielu projekcji 1D w jeden obraz 2D.
+W roku 1905 W. Radon udowodnił następujące twierdzenie: „Obraz obiektu dwuwymiarowego można zrekonstruować na podstawie nieskończone ilości rzutów jednowymiarowych”. Rzutowanie to odpowiada wykonywaniu na obiekcie pewnej transformacji, nazywanej Transformacją Radona. 
+Po dokonaniu transformacji z otrzymanych wyników otrzymyje się sinogram, będący wizualizacją
+Dokonanie na wynikach rzutowania Odwrotnej Transformacji Radona umożliwia zrekonstruowanie obrazu obiektu.
+
+\subsubsection{Algorytm Brens}
+
 
 \section{Technologia}
 Program zaimplementowano w języku Python korzystając z następujących biibliotek:
 \begin{itemize}
-
+\item skimage - wczytanie obrazu
 \end{itemize}
 
 \section{Metoda rozwiązania}
