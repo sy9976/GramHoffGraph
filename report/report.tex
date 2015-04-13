@@ -37,10 +37,7 @@ Temat zadania: & tomograf komputerowy
 \end{center}
 
 \newpage
- kilka słów o zadaniu, proponowany opis rozwiązania postawionego zadania, 
- proponowana architektura aplikacji, technologie, 
- spodziewane problemy i zarys rozwiązania, możliwe rozszerzenia.
- 
+
 \section{Opis problemu}
 Tematem projektu zaliczeniowego jest symulator tomografu komputerowego.
 Według wymagań symulator ten powinien pozwalać na:
@@ -52,9 +49,10 @@ Według wymagań symulator ten powinien pozwalać na:
 \end{itemize}
 
 \subsection{Zasada działania}
+Tomograf w ogólności składa się z lampy rentgenowskiej, będącej emiterem wiązki promieniowania rentegnowskiego, stołu na którym leży pacjent(badany obiekt) oraz  detektora znajdującego się po przeciwległej stronie stołu względem emitera.
 Zasada działanie tomografu opiera się na pochłanianiu promieniowania rentgenowskiego przez ludzkie narządy.
-Niestety, narządy organizmu ludzkiego wzajemnie się przysłaniają, co prowadzi do nakładania się na siebie obrazów poszczególnych struktur wewnętrznych człowieka.
-Zauważono, że wykonanie większej (niż jeden) liczby zdjęć radiologicznych z różnych pozycji lampy i detektora względem badanego obiektu, a następnie obejrzenie zdjęć w stroboskopie prowadzi do poprawienia jakośi obrazu. Wprowadzono więc ruch lampy rentgenowskiej detektora wzgledem obiektu.
+Niestety, narządy organizmu ludzkiego wzajemnie się przysłaniają, co prowadzi do nakładania się na siebie obrazów poszczególnych struktur wewnętrznych człowieka(przy przepuszczeniu jednej wiązki).
+Zauważono, że wykonanie większej (niż jeden) liczby zdjęć radiologicznych z różnych pozycji lampy i detektora względem badanego obiektu, a następnie obejrzenie zdjęć w stroboskopie prowadzi do poprawienia jakości obrazu. Wprowadzono więc ruch lampy rentgenowskiej detektora względem obiektu.
 
 \subsubsection{Generacje tomografów}
 Od czasów wynalezienia tomografu zmieniały koncepcje i usprawnienia mające na celu zwiększenie ich szybkości i wydajności.
@@ -66,24 +64,23 @@ W związku z tym powastała poniższa klasyfikacja na generacje:
 \item Generacja IV - detektory umieszczone zostały na stałe na pierścienu, ruch obrotowy wykonuje tylko lampa.
 \end{itemize}
 
-W projekcie rozważa się implementację czwartej generacji.
-
+\section{Opis rozwiązania}
+Poniżej znajduje się kilka pojęć, których zrozumienienie i wykorzystanie wymagane jest do rozwiązania projektu.
 \subsubsection{Transformata Radona}
-Używana do dokonania transformacji wielu projekcji 1D w jeden obraz 2D.
-W roku 1905 W. Radon udowodnił następujące twierdzenie: „Obraz obiektu dwuwymiarowego można zrekonstruować na podstawie nieskończone ilości rzutów jednowymiarowych”. Rzutowanie to odpowiada wykonywaniu na obiekcie pewnej transformacji, nazywanej Transformacją Radona. 
-Po dokonaniu transformacji z otrzymanych wyników otrzymyje się sinogram, będący wizualizacją
-Dokonanie na wynikach rzutowania Odwrotnej Transformacji Radona umożliwia zrekonstruowanie obrazu obiektu.
+W roku 1905 W. Radon udowodnił następujące twierdzenie: „Obraz obiektu dwuwymiarowego można zrekonstruować na podstawie nieskończonej ilości rzutów jednowymiarowych”. Rzutowanie to odpowiada wykonywaniu na obiekcie pewnej transformacji, nazywanej Transformacją Radona.
+Po dokonaniu transformacji z otrzymanych wyników otrzymyje się sinogram, czyli wykres będący wizualizacją owych wyników.
+Dokonanie na sinogramie Odwrotnej Transformacji Radona umożliwia zrekonstruowanie obrazu obiektu. Zrekonstruowany obraz zawierał będzie pewne zniekształcenia, lecz wraz ze wzrostem liczby projekcji powinien co raz bardziej odzwierciedlać obraz sprzed transformacji.
 
 \subsubsection{Algorytm Bresenham'a}
-Służy do wyznaczania pikseli leżących na odcinku między dwoma punktami. W naszym zastosowaniu służy do wyznaczania pikseli przez które przechodzi promień oraz wyznaczenia wartości pochłoniętego promieniowania.
+Służy do wyznaczania pikseli leżących na odcinku między dwoma punktami. W naszym zastosowaniu służy do wyznaczania pikseli obrazu, przez które przechodzi promień oraz wyznaczenia wartości pochłoniętego promieniowania.
 
 \subsubsection{Technologia}
-Program zaimplementowano w języku Python korzystając z następujących bibliotek:
+Program zaimplementowany zostanie w języku Python(wersja 2.7) z wykorzystaniem następujących bibliotek:
 \begin{itemize}
 \item skimage - wczytanie obrazu
 \item numpy - działania na macierzach
 \end{itemize}
-Zaimplementowano algorytm Bresenham'a.
+\newpage
 Przyjęto model tomografu o następujących parametrach:
 \begin{itemize}
 \item alfa - kąt o który obracany jest układ emiterów
@@ -93,10 +90,13 @@ Przyjęto model tomografu o następujących parametrach:
 \end{itemize}
 
 \section{Plan dalszej pracy}
+Przyjęto stworzenie symulatora tomografu czwartej generacji. Zaimplementowano już algorytm Bresenham'a, wyznaczający piksele w macierzy znajdujące się na drodze  "promienia". Wczytano obraz w skali szarości. Obecnie prace trwają nad sposobem implementacji transformaty Radona.
 Do wykonania pozostało:
-- implementacja transformaty Radona pozwalajaca na wygodny dobó© parametrów
-- implementacja filtrów
-- budowa interfejsu do zmiany parametrów
+\begin{itemize}
+\item implementacja transformaty Radona pozwalajaca na wygodny dobór parametrów
+\item implementacja filtrów
+\item budowa interfejsu do zmiany parametrów
+\end{itemize}
 
 \bibliographystyle{apalike}
 \bibliography{sample}
