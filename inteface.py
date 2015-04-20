@@ -3,46 +3,48 @@
 
 from Tkinter import *
 from PIL import Image, ImageTk
-# if you are working under Python 3, comment the previous line and comment out the following line
-#from tkinter import *
 
 root = Tk() #initialize Tkinter
 root.title("GramHoffGraph")
 size = 400, 400
-#w = Label(root, text="Hello Tkinter!")
-#w.pack() #tells Tk to fit the size of the window to the given text
+input_frame = LabelFrame(root, text='input data')
+input_frame.grid(row=0,column=0)
+params_frame = LabelFrame(root, text='parameters')
+params_frame.grid(row=0,column=5)
+output_frame = LabelFrame(root, text='output data')
+output_frame.grid(row=0,column=10)
 
-
+#INPUT
 image = Image.open('data/image.jpg')
 image.thumbnail(size, Image.ANTIALIAS)
 #img = img.resize((basewidth,hsize), PIL.Image.ANTIALIAS)
-logo = ImageTk.PhotoImage(image)
-#logo = PhotoImage(file='data/image.jpg')
-w1 = Label(root, image=logo).pack(side="right")
-explanation = """Zdjęcie rentegowskie 
-zgrabnej nogi Szymona Gramzy, 
-który uległ kontuzji 
-z winy architektury byłej szkoły."""
-w2 = Label(root, 
+data = ImageTk.PhotoImage(image)
+photo_display = Label(input_frame, image=data).grid(row=0, column=0)
+explanation = """Just some picture info"""
+photo_info = Label(input_frame, 
            justify=LEFT,
            padx = 10, 
            fg='green',
-           text=explanation).pack(side="left")
-def callback():
-    print "click!"
+           text=explanation).grid(row=1, column=0)
 
-b = Button(root, text="OK", pady=60, command=callback)
-b.pack()
-#b.pack()
-l =Label(root, text="Starting...")
-#l.grid()
-l.bind('<Enter>', lambda e: l.configure(text='Moved mouse inside'))
-l.bind('<Leave>', lambda e: l.configure(text='Moved mouse outside'))
-l.bind('<1>', lambda e: l.configure(text='Clicked left mouse button'))
-l.bind('<Double-1>', lambda e: l.configure(text='Double clicked'))
-l.bind('<B3-Motion>', lambda e: l.configure(text='right button drag to %d,%d' % (e.x, e.y)))
+def insert():
+    print "click insert!"
 
-c = Checkbutton(root, text='testing', padx=20)
-l.pack()
-c.pack()
+insert_btn = Button(input_frame, 
+              text="Wczytaj", 
+              padx=60, 
+              command=insert, 
+              justify=LEFT).grid(row=2, column=0)
+
+#FILTER
+filter_chck = Checkbutton(params_frame, 
+                text='filtr', 
+                padx=20).grid(row=0, column=1)
+#filter_chck.pack()
+
+#OUTPUT
+
+#input_frame.pack()
+#params_frame.pack()
+#output_frame.pack()
 root.mainloop()
