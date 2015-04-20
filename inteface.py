@@ -10,9 +10,9 @@ size = 400, 400
 input_frame = LabelFrame(root, text='input data')
 input_frame.grid(row=0,column=0)
 params_frame = LabelFrame(root, text='parameters')
-params_frame.grid(row=0,column=5)
+params_frame.grid(row=0,column=3)
 output_frame = LabelFrame(root, text='output data')
-output_frame.grid(row=0,column=10)
+output_frame.grid(row=0,column=6)
 
 #INPUT
 image = Image.open('data/image.jpg')
@@ -29,6 +29,7 @@ photo_info = Label(input_frame,
 
 def insert():
     print "click insert!"
+    print spinval
 
 insert_btn = Button(input_frame, 
               text="Wczytaj", 
@@ -39,10 +40,29 @@ insert_btn = Button(input_frame,
 #FILTER
 filter_chck = Checkbutton(params_frame, 
                 text='filtr', 
-                padx=20).grid(row=0, column=1)
-#filter_chck.pack()
+                justify=LEFT,
+                padx=20).grid(row=0, column=1, sticky=W)
+
+spinval = IntVar()
+s = Spinbox(params_frame, 
+              from_=1, 
+              to=180,
+              textvariable=spinval).grid(row=1, column=0)
+
 
 #OUTPUT
+output_display = Label(output_frame, image=data).grid(row=0, column=0)
+explanation = """Just some picture info"""
+output_info = Label(output_frame, 
+              justify=LEFT,
+              padx = 10, 
+              fg='green',
+              text=explanation).grid(row=1, column=0)
+save_btn = Button(output_frame, 
+              text="Zapisz", 
+              padx=60, 
+              command=insert, 
+              justify=LEFT).grid(row=2, column=0)
 
 #input_frame.pack()
 #params_frame.pack()
