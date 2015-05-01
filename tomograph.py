@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from math import *
 from PIL import Image
 from numpy import *
 from cv2 import *
@@ -90,15 +91,28 @@ def drawCircle(x0, y0, r, matrix):
     result += circle[i]
   return result
 
+def repaintCircle(circle):
+  for i in range (len(circle)):
+    matrix[circle[i][0]][circle[i][1]] = [250, 0, 0]
+
 def drawCircle2(x0, y0, r, matrix):
-  for i in range(360):
-    x = x0 + cos(radians(i))*r
-    y = y0 + sin(radians(i))*r
-    matrix[x][y] = 255
+  step = atan(1.0/r)
+  alpha = 0
+  print 'STEP: ', step
+  circle = []
+  while alpha <= 2*pi:
+    x = x0 + round(sin(alpha)*r)
+    y = y0 + round(cos(alpha)*r)
+    matrix[x][y] = [250, 0, 0]
+    alpha += step
+    circle.append((x,y))
+  return circle
 
 def drawArc(x0, y0, r, matrix, circle, alpha, beta):
-  xAlpha = x0 + sin(radians(alpha))*r
-  yAlpha = y0 + cos(radians(alpha))*r
+  alpha = alpha%360
+  beta = beta%360
+  xAlpha = x0 + round(sin(radians(alpha))*r)
+  yAlpha = y0 + round(cos(radians(alpha))*r)
   err = 0
   if ((matrix[xAlpha][yAlpha] == [250, 0, 0]).all()):
     err = 0
@@ -125,8 +139,9 @@ def drawArc(x0, y0, r, matrix, circle, alpha, beta):
   else:
     err = 1
 
-  xBeta = x0 + sin(radians(alpha))*r
-  yBeta = y0 + cos(radians(alpha))*r
+  xBeta = x0 + round(sin(radians(beta))*r)
+  yBeta = y0 + round(cos(radians(beta))*r)
+  err = 0
   if ((matrix[xBeta][yBeta] == [250, 0, 0]).all()):
     err = 0
   elif ((matrix[xBeta-1][yBeta] == [250, 0, 0]).all()):
@@ -154,11 +169,22 @@ def drawArc(x0, y0, r, matrix, circle, alpha, beta):
   if not err:
     matrix[xAlpha][yAlpha] = [0, 0, 250]
     matrix[xBeta][yBeta] = [0, 0, 250]
-  #for i in range(beta-alpha):
-    #x = x0 + sin(radians(alpha+i))*r
-    #y = y0 + cos(radians(alpha+i))*r
-    #print 'x,y ', x, y
-    #matrix[x][y] = [0, 0, 250]
+  if beta > alpha:
+    for i in range (len(circle)):
+      if circle[i] == (xAlpha, yAlpha):
+        for j in range(i, len(circle)):
+          if circle[j] == (xBeta, yBeta):
+            break
+          matrix[circle[j][0]][circle[j][1]] = [0, 0, 250]
+  else:
+    for i in range (len(circle)):
+      if circle[i] == (xAlpha, yAlpha):
+        for j in range (i, len(circle)):
+          matrix[circle[j][0]][circle[j][1]] = [0, 0, 250]
+    for i in range (len(circle)):
+      if circle[i] == (xBeta, yBeta):
+        break
+      matrix[circle[i][0]][circle[i][1]] = [0, 0, 250]
 
 def createDetectors(width, circle):
   count = 0
@@ -175,8 +201,9 @@ def createDetectors(width, circle):
 matrix = zeros((200,200, 3), uint8)
 #matrix = Image.new("L", (200,200))
 #drawRay(0, 1, 7, 14, matrix)
-circle = drawCircle(100, 100, 75, matrix)
-detectors = createDetectors(10, circle)
+circle = drawCircle2(100, 100, 75, matrix)
+circletmp = circle[:]
+detectors = createDetectors(10, circletmp)
 #print detectors
 #matrixRGB = cvtColor(matrix, COLOR_GRAY2RGB)
 #drawArc(100, 100, 75, matrix, 0, 45)
@@ -191,9 +218,10 @@ while(1):
   #plt.show()
   begin = 20 + alpha
   end = 45 + alpha
-  print begin, end
+  #print begin, end
+  repaintCircle(circle)
   drawArc(100, 100, 75, matrix, circle, begin, end)
-  print alpha
+  #print alpha
   imshow('TEST', matrix)
 #imshow('TEST', matrix)
 #print sin (pi/4)
