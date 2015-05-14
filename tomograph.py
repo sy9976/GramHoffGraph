@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from math import *
+import math as math
 from PIL import Image
 from numpy import *
 from cv2 import *
@@ -54,10 +54,6 @@ def drawRay(x1, y1, x2, y2, matrix):
 
 def drawCircle(x0, y0, r, matrix):
   circle = [[] for i in range(8)]
-  print circle
-  #for i in range(8):
-  #  tmp = a[]
-  #  circle.append(tmp)
   x = r;
   y = 0;
   error = 1 - x;
@@ -86,19 +82,18 @@ def drawCircle(x0, y0, r, matrix):
       error += 2 * (y - x) + 1
 
   result = []
-  print result
   for i in range(8):
     result += circle[i]
   return result
 
-def repaintCircle(circle):
+def repaintCircle(matrix, circle):
+  print len(circle)
   for i in range (len(circle)):
     matrix[circle[i][0]][circle[i][1]] = [250, 0, 0]
 
 def drawCircle2(x0, y0, r, matrix):
-  step = atan(1.0/r)
+  step = math.atan(1.0/r)
   alpha = 0
-  print 'STEP: ', step
   circle = []
   while alpha <= 2*pi:
     x = x0 + round(sin(alpha)*r)
@@ -198,31 +193,66 @@ def createDetectors(width, circle):
     count = 0
   return result
 
+def calculateEmiterDistance(x, y, distance):
+  distance += round(math.sqrt(x**2 + y**2)/2 + 1)
+  print 'DISTANCE: ', distance
+  return distance
+
+def drawEdge(matrix, emiterDistance):
+  x, y, z = matrix.shape
+  if x > y:
+    tmpmat = zeros((x, (x-y)/2, 3), uint8)
+    matrix = hstack((tmpmat, matrix))
+    matrix = hstack((matrix, tmpmat))
+  elif y > x:
+    tmpmate = zeros(((y-x)/2, y, 3), uint8)
+    matrix = concatenate((tmpmat, matrix))
+    matrix = concatenate((matrix, tmpmat))
+  x, y, z = matrix.shape
+  print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
+  tmpmat = zeros((20+emiterDistance-x/2, y, 3), uint8)
+  matrix = concatenate((tmpmat, matrix))
+  matrix = concatenate((matrix, tmpmat))
+  x, y, z = matrix.shape
+  print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
+  tmpmat = zeros((x, 20+emiterDistance-y/2, 3), uint8)
+  print tmpmat.shape
+  matrix = hstack((tmpmat, matrix))
+  matrix = hstack((matrix, tmpmat))
+  x, y, z = matrix.shape
+  print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
+  return matrix
+
 matrix = zeros((200,200, 3), uint8)
-#matrix = Image.new("L", (200,200))
-#drawRay(0, 1, 7, 14, matrix)
-circle = drawCircle2(100, 100, 75, matrix)
+img = imread('data/image.jpg')
+print img.shape
+x, y, z = img.shape
+emiterDistance = 10
+emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
+img = drawEdge(img, emiterDistance)
+x, y, z = img.shape
+print 'XYZ: ', x, y, z
+circle = drawCircle2(x/2, y/2, emiterDistance, img)
 circletmp = circle[:]
 detectors = createDetectors(10, circletmp)
-#print detectors
-#matrixRGB = cvtColor(matrix, COLOR_GRAY2RGB)
-#drawArc(100, 100, 75, matrix, 0, 45)
-#img = imread('data/image.jpg', IMREAD_GRAYSCALE)
-#print split(img).shape
-namedWindow('TEST', WINDOW_NORMAL)
-resizeWindow('TEST', 400, 400)
-alpha = 0;
+namedWindow('X', WINDOW_NORMAL)
+resizeWindow('X', 400, 400)
+imshow('X', img)
+#namedWindow('TEST', WINDOW_NORMAL)
+#resizeWindow('TEST', 400, 400)
+alpha = 0
+beta = 50
 #plt.imshow(matrix, cmap='gray')
 while(1):
   #plt.imshow(matrix)
   #plt.show()
-  begin = 20 + alpha
-  end = 45 + alpha
+  begin = alpha
+  end = beta + alpha
   #print begin, end
-  repaintCircle(circle)
-  drawArc(100, 100, 75, matrix, circle, begin, end)
+  repaintCircle(img, circle)
+  drawArc(x/2, y/2, emiterDistance, img, circle, begin, end)
   #print alpha
-  imshow('TEST', matrix)
+  imshow('X', img)
 #imshow('TEST', matrix)
 #print sin (pi/4)
 #c = msvcrt.getch()
@@ -230,8 +260,16 @@ while(1):
   key = waitKey(0)
   if key == 27: #ESC
     break
-  if key == ord('a'):
+  elif key == ord('a'):
     alpha += 1
+  elif key == ord('s'):
+    if alpha > 1:
+      alpha -= 1
+  elif key == ord('q'):
+    beta += 1
+  elif key == ord('w'):
+    if beta > 1:
+      beta -= 1
 #f = open('plik', 'w')
 #lista = ["bla ", "bla ", "yyy "]
 #f.writelines(lista)
