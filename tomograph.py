@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import math as math
-from PIL import Image
-from numpy import *
+#import Image
+#from PIL import Image
+#from pylab import cm
+import numpy as np
+#from numpy import *
 from cv2 import *
 import matplotlib.pyplot as plt
 #import msvcrt 
@@ -87,7 +90,6 @@ def drawCircle(x0, y0, r, matrix):
   return result
 
 def repaintCircle(matrix, circle):
-  print len(circle)
   for i in range (len(circle)):
     matrix[circle[i][0]][circle[i][1]] = [250, 0, 0]
 
@@ -95,9 +97,9 @@ def drawCircle2(x0, y0, r, matrix):
   step = math.atan(1.0/r)
   alpha = 0
   circle = []
-  while alpha <= 2*pi:
-    x = x0 + round(sin(alpha)*r)
-    y = y0 + round(cos(alpha)*r)
+  while alpha <= 2*np.pi:
+    x = x0 + round(np.cos(alpha)*r)
+    y = y0 + round(np.sin(alpha)*r)
     matrix[x][y] = [250, 0, 0]
     alpha += step
     circle.append((x,y))
@@ -106,8 +108,10 @@ def drawCircle2(x0, y0, r, matrix):
 def drawArc(x0, y0, r, matrix, circle, alpha, beta):
   alpha = alpha%360
   beta = beta%360
-  xAlpha = x0 + round(sin(radians(alpha))*r)
-  yAlpha = y0 + round(cos(radians(alpha))*r)
+  xAlpha = x0 + round(np.cos(np.radians(alpha))*r)
+  yAlpha = y0 + round(np.sin(np.radians(alpha))*r)
+  xBeta = x0 + round(np.cos(np.radians(beta))*r)
+  yBeta = y0 + round(np.sin(np.radians(beta))*r)
   err = 0
   if ((matrix[xAlpha][yAlpha] == [250, 0, 0]).all()):
     err = 0
@@ -133,9 +137,7 @@ def drawArc(x0, y0, r, matrix, circle, alpha, beta):
     yAlpha += 1
   else:
     err = 1
-
-  xBeta = x0 + round(sin(radians(beta))*r)
-  yBeta = y0 + round(cos(radians(beta))*r)
+  
   err = 0
   if ((matrix[xBeta][yBeta] == [250, 0, 0]).all()):
     err = 0
@@ -169,6 +171,7 @@ def drawArc(x0, y0, r, matrix, circle, alpha, beta):
       if circle[i] == (xAlpha, yAlpha):
         for j in range(i, len(circle)):
           if circle[j] == (xBeta, yBeta):
+            #print "BREAK" 
             break
           matrix[circle[j][0]][circle[j][1]] = [0, 0, 250]
   else:
@@ -195,68 +198,80 @@ def createDetectors(width, circle):
 
 def calculateEmiterDistance(x, y, distance):
   distance += round(math.sqrt(x**2 + y**2)/2 + 1)
-  print 'DISTANCE: ', distance
   return distance
 
 def drawEdge(matrix, emiterDistance):
   x, y, z = matrix.shape
   if x > y:
-    tmpmat = zeros((x, (x-y)/2, 3), uint8)
-    matrix = hstack((tmpmat, matrix))
-    matrix = hstack((matrix, tmpmat))
+    tmpmat = np.zeros((x, (x-y)/2, 3), np.uint8)
+    matrix = np.hstack((tmpmat, matrix))
+    matrix = np.hstack((matrix, tmpmat))
   elif y > x:
-    tmpmate = zeros(((y-x)/2, y, 3), uint8)
-    matrix = concatenate((tmpmat, matrix))
-    matrix = concatenate((matrix, tmpmat))
+    tmpmate = np.zeros(((y-x)/2, y, 3), np.uint8)
+    matrix = np.concatenate((tmpmat, matrix))
+    matrix = np.concatenate((matrix, tmpmat))
   x, y, z = matrix.shape
   print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
-  tmpmat = zeros((20+emiterDistance-x/2, y, 3), uint8)
-  matrix = concatenate((tmpmat, matrix))
-  matrix = concatenate((matrix, tmpmat))
+  tmpmat = np.zeros((20+emiterDistance-x/2, y, 3), np.uint8)
+  matrix = np.concatenate((tmpmat, matrix))
+  matrix = np.concatenate((matrix, tmpmat))
   x, y, z = matrix.shape
   print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
-  tmpmat = zeros((x, 20+emiterDistance-y/2, 3), uint8)
+  tmpmat = np.zeros((x, 20+emiterDistance-y/2, 3), np.uint8)
   print tmpmat.shape
-  matrix = hstack((tmpmat, matrix))
-  matrix = hstack((matrix, tmpmat))
+  matrix = np.hstack((tmpmat, matrix))
+  matrix = np.hstack((matrix, tmpmat))
   x, y, z = matrix.shape
   print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
   return matrix
 
-matrix = zeros((200,200, 3), uint8)
+def middleDetectors(detectors):
+  result = []
+  for i in range(len(detectors)):
+    result.append(detectors[i][len(detectors[i])//2])
+  return result
+    #print "Detector"
+    #print detectors[i]
+    #print "Middle"
+    #print detectors[i][len(detectors[i])//2]
+
+matrix = np.zeros((200,200, 3), np.uint8)
 img = imread('data/image.jpg')
+#img2 = Image.fromarray(np.uint8(cm.gist_earth(img)))
+#img = img.resize((100, 100), Image.BILINEAR)
 print img.shape
 x, y, z = img.shape
-emiterDistance = 10
+emiterDistance = 50
+detectorWidth = 10
+alpha = 5
+beta = 50
 emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
 img = drawEdge(img, emiterDistance)
 x, y, z = img.shape
+emiterPositionX = x/2 + round(np.cos(np.radians(alpha))*emiterDistance)
+emiterPositionY = y/2 + round(np.sin(np.radians(alpha))*emiterDistance)
 print 'XYZ: ', x, y, z
 circle = drawCircle2(x/2, y/2, emiterDistance, img)
 circletmp = circle[:]
-detectors = createDetectors(10, circletmp)
+detectors = createDetectors(detectorWidth, circletmp)
+middlePoints = middleDetectors(detectors)
 namedWindow('X', WINDOW_NORMAL)
 resizeWindow('X', 400, 400)
 imshow('X', img)
 #namedWindow('TEST', WINDOW_NORMAL)
 #resizeWindow('TEST', 400, 400)
-alpha = 0
-beta = 50
 #plt.imshow(matrix, cmap='gray')
 while(1):
   #plt.imshow(matrix)
   #plt.show()
-  begin = alpha
-  end = beta + alpha
-  #print begin, end
+  begin = alpha + 180 - beta
+  end = alpha + 180 + beta
   repaintCircle(img, circle)
   drawArc(x/2, y/2, emiterDistance, img, circle, begin, end)
-  #print alpha
   imshow('X', img)
-#imshow('TEST', matrix)
-#print sin (pi/4)
-#c = msvcrt.getch()
-#print 'wcisnales', c 
+  #imshow('TEST', matrix)
+  #c = msvcrt.getch()
+  #print 'wcisnales', c 
   key = waitKey(0)
   if key == 27: #ESC
     break
