@@ -1,17 +1,61 @@
 #!/usr/bin/env python
 import math as math
-#import Image
+import Image
 #from PIL import Image
 #from pylab import cm
 import numpy as np
 #from numpy import *
 from cv2 import *
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 #import msvcrt 
 
 def drawRay(x1, y1, x2, y2, matrix):
+  result = 0
+  if x1 <= x2:
+    kx = 1
+  else:
+    kx = -1
+  if y1 <= y2:
+    ky = 1
+  else:
+    ky = -1
+  dx = abs(x2 - x1)
+  dy = abs(y2 - y1)
+  #print matrix[x1][y1]
+  #result += matrix[x1][y1][1]
+  #print x1, y1
+  if dx >= dy:
+    e = dx/2
+    for i in range(dx):
+      x1 = x1 + kx
+      e = e - dy
+      if e < 0:
+        y1 = y1 + ky
+        e = e + dx
+      #print x1, y1
+      result += matrix[x1][y1][1]
+      #print matrix[x1][y1]
+  else:
+    e = dy/2
+    for i in range(dy):
+      y1 = y1 + ky
+      e = e - dx
+      if e < 0:
+        x1 = x1 + kx
+        e = e + dy
+      #print x1, y1
+      #print matrix[x1][y1]
+      result += matrix[x1][y1][1]
+  result -= matrix[x1][y1][1]
+  return result
+
+def drawRay2(x1, y1, x2, y2, matrix):
+  result = 0
+  xEnd, yEnd, zEnd = matrix.shape
   x = x1;
   y = y1;
+  print "start"
+  print x1, y1, x2, y2
   #ustalenie kierunku rysowania
   if x1 < x2:
     xi = 1
@@ -26,7 +70,11 @@ def drawRay(x1, y1, x2, y2, matrix):
     yi = -1
     dy = y1 - y2
   #pierwszy piksel
-  matrix[x][y] = 1
+  #if ((x > 0) and (y > 0)):
+  result += matrix[x][y][1]
+    #print "dodaje"
+  print matrix[x][y]
+  #matrix[x][y] = 1
   #wybor osi wiodacej
   if dx > dy: #os OX
     ai = (dy - dx) * 2
@@ -40,7 +88,11 @@ def drawRay(x1, y1, x2, y2, matrix):
       else:
         d += bi
         x += xi
-      matrix[x][y] = [0, 250, 0]
+      #matrix[x][y] = [0, 250, 0]
+      #if ((x > 0) and (y > 0)):
+        #print "dodaje"
+      print matrix[x][y]
+      result += matrix[x][y][1]
   else:#os OY
     ai = (dx - dy) * 2
     bi = dx * 2
@@ -53,8 +105,12 @@ def drawRay(x1, y1, x2, y2, matrix):
       else:
         d += bi
         y += yi
-      matrix[x][y] = [0, 250, 0]
-
+      #matrix[x][y] = [0, 250, 0]
+      #if ((x > 0) and (y > 0)):
+        #print "dodaje"
+      print matrix[x][y]
+      result += matrix[x][y][1]
+  return result
 def drawCircle(x0, y0, r, matrix):
   circle = [[] for i in range(8)]
   x = r;
@@ -207,7 +263,7 @@ def drawEdge(matrix, emiterDistance):
     matrix = np.hstack((tmpmat, matrix))
     matrix = np.hstack((matrix, tmpmat))
   elif y > x:
-    tmpmate = np.zeros(((y-x)/2, y, 3), np.uint8)
+    tmpmat = np.zeros(((y-x)/2, y, 3), np.uint8)
     matrix = np.concatenate((tmpmat, matrix))
     matrix = np.concatenate((matrix, tmpmat))
   x, y, z = matrix.shape
@@ -235,29 +291,60 @@ def middleDetectors(detectors):
     #print "Middle"
     #print detectors[i][len(detectors[i])//2]
 
-matrix = np.zeros((200,200, 3), np.uint8)
-img = imread('data/image.jpg')
+def acquisition(matrix, middleDetectors, alpha, emiterDistance, maxPixels):
+  angle = 0
+  x, y, z = matrix.shape
+  result = []
+  while angle <= 360:
+    tmp = []
+    emiterPositionX = x/2 + round(np.cos(np.radians(angle))*emiterDistance)
+    emiterPositionY = y/2 + round(np.sin(np.radians(angle))*emiterDistance)
+    for i in range(len(middleDetectors)):
+      middleX, middleY = middleDetectors[i]
+      #print emiterPositionX, emiterPositionY, middleX, middleY
+      absorption = drawRay(int(emiterPositionX), int(emiterPositionY), int(middleX), int(middleY), matrix)
+      normalAbsorption = int(round(255.0*(absorption/(255.0*maxPixels))))
+      #print normalAbsorption
+      tmp.append(normalAbsorption)
+      #print absorption
+    angle += alpha
+    result.append(tmp)
+  return result
+
+#matrix = np.zeros((200,200, 3), np.uint8)
+img = imread('data/kwadraty.png')
+#imgGray = imread('data/image3.jpg', 0)
+#imshow('imgae', img2)
 #img2 = Image.fromarray(np.uint8(cm.gist_earth(img)))
 #img = img.resize((100, 100), Image.BILINEAR)
 print img.shape
 x, y, z = img.shape
+if x > y:
+  maxPixels = x
+else:
+  maxPixels = y
+print maxPixels
 emiterDistance = 50
-detectorWidth = 10
-alpha = 5
-beta = 50
+detectorWidth = 4
+alpha = 1
+beta = 30
 emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
 img = drawEdge(img, emiterDistance)
 x, y, z = img.shape
-emiterPositionX = x/2 + round(np.cos(np.radians(alpha))*emiterDistance)
-emiterPositionY = y/2 + round(np.sin(np.radians(alpha))*emiterDistance)
 print 'XYZ: ', x, y, z
 circle = drawCircle2(x/2, y/2, emiterDistance, img)
 circletmp = circle[:]
 detectors = createDetectors(detectorWidth, circletmp)
 middlePoints = middleDetectors(detectors)
+a = acquisition(img, middlePoints, alpha, emiterDistance, maxPixels)
+#imshow('D', a)
+img3 = np.asmatrix(np.array(a, dtype=np.uint8))
+#im = Image.fromarray(np.array(a))
+#im.show()
 namedWindow('X', WINDOW_NORMAL)
 resizeWindow('X', 400, 400)
 imshow('X', img)
+imshow('A', img3)
 #namedWindow('TEST', WINDOW_NORMAL)
 #resizeWindow('TEST', 400, 400)
 #plt.imshow(matrix, cmap='gray')
