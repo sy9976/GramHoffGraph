@@ -365,44 +365,29 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
       a = result[i].pop()
   return result
 
-img = imread('data/image.jpg', 0)
-x, y = img.shape
-if x > y:
-  maxPixels = x
-else:
-  maxPixels = y
-emiterDistance = 20
-detectorWidth = 20
-alpha = 5
-beta = 50
-
-
-emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
-img = drawEdge(img, emiterDistance)
-x, y = img.shape
-circle = drawCircle(x/2, y/2, emiterDistance, img)
-circletmp = circle[:]
-detectors = createDetectors(detectorWidth, circletmp)
-middlePoints = middleDetectors(detectors)
-a = acquisition(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth)
-img3 = np.asmatrix(np.array(a, dtype=np.uint8))
-namedWindow('X', WINDOW_NORMAL)
-resizeWindow('X', 400, 400)
-namedWindow('A', WINDOW_NORMAL)
-resizeWindow('A', 400, 400)
-while(1):
-  imshow('X', img)
-  imshow('A', img3)
-  key = waitKey(0)
-  if key == 27: #ESC
-    break
-  #elif key == ord('a'):
-  #  alpha += 1
-  #elif key == ord('s'):
-  #  if alpha > 1:
-  #    alpha -= 1
-  #elif key == ord('q'):
-  #  beta += 1
-  #elif key == ord('w'):
-  #  if beta > 1:
-  #    beta -= 1
+def generate(path, emiterDistance, detectorWidth, alpha, beta):
+  img = imread(path, 0)
+  print 'wczytany' , img.shape
+  x, y = img.shape
+  if x > y:
+    maxPixels = x
+  else:
+    maxPixels = y
+  #emiterDistance = 20
+  #detectorWidth = 20s
+  #alpha = 5
+  #beta = 50
+  emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
+  img = drawEdge(img, emiterDistance)
+  x, y = img.shape
+  circle = drawCircle(x/2, y/2, emiterDistance, img)
+  circletmp = circle[:]
+  detectors = createDetectors(detectorWidth, circletmp)
+  middlePoints = middleDetectors(detectors)
+  a = acquisition(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth)
+  img3 = np.asmatrix(np.array(a, dtype=np.uint8))
+  print img3.shape
+  return img3
+    
+def test():
+  print 'tomograph test text'    
