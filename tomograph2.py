@@ -4,7 +4,8 @@ import Image
 import numpy as np
 from cv2 import *
 
-def drawRay(x1, y1, x2, y2, matrix, sinValue): # x1,y1 - detektor
+def drawRay(x1, y1, x2, y2, matrix, sinValue, imgSize): # x1,y1 - detektor
+  beginX, endX, beginY, endY = imgSize
   result = 0
   if x1 <= x2:
     kx = 1
@@ -24,7 +25,8 @@ def drawRay(x1, y1, x2, y2, matrix, sinValue): # x1,y1 - detektor
       if e < 0:
         y1 = y1 + ky
         e = e + dx
-      matrix[x1][y1] += sinValue
+      if ((x1>=beginX) and (x1<endX) and (y1>=beginY) and (y1<endY)):
+        matrix[x1][y1] += sinValue
   else:
     e = dy/2
     for i in range(dy):
@@ -33,8 +35,9 @@ def drawRay(x1, y1, x2, y2, matrix, sinValue): # x1,y1 - detektor
       if e < 0:
         x1 = x1 + kx
         e = e + dy
-      matrix[x1][y1] += sinValue
-  matrix[x1][y1] -= sinValue
+      if ((x1>=beginX) and (x1<endX) and (y1>=beginY) and (y1<endY)):
+        matrix[x1][y1] += sinValue
+  #matrix[x1][y1] -= sinValue
   return result
 
 def drawRayRGB(x1, y1, x2, y2, matrix):
@@ -306,7 +309,9 @@ def calculateEmiterDistance(x, y, distance):
 
 def drawEdge(matrix, emiterDistance):
   a = matrix.shape
+  imageSize = (0, 0, 0, 0)
   if (len(a) == 3):
+    oldX, oldY, oldZ = matrix.shape
     x, y, z = matrix.shape
     if x > y:
       tmpmat = np.zeros((x, (x-y)/2, 3), np.uint8)
@@ -325,9 +330,11 @@ def drawEdge(matrix, emiterDistance):
     matrix = np.hstack((tmpmat, matrix))
     matrix = np.hstack((matrix, tmpmat))
     x, y, z = matrix.shape
+    imageSize = ((x/2)-(oldX/2), (x/2)+(oldX/2), (y/2)-(oldY/2), (y/2)+(oldY/2))
     #print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
   elif (len(a) == 2): 
     x, y = matrix.shape
+    oldX, oldY = matrix.shape
     if x > y:
       tmpmat = np.zeros((x, (x-y)/2), np.uint8)
       matrix = np.hstack((tmpmat, matrix))
@@ -345,8 +352,9 @@ def drawEdge(matrix, emiterDistance):
     matrix = np.hstack((tmpmat, matrix))
     matrix = np.hstack((matrix, tmpmat))
     x, y = matrix.shape
+    imageSize = ((x/2)-(oldX/2), (x/2)+(oldX/2), (y/2)-(oldY/2), (y/2)+(oldY/2))
     #print 'x, y: ', x, y, 'emiterDistance: ', emiterDistance
-  return matrix
+  return (imageSize, matrix)
 
 def middleDetectors(detectors):
   result = []
@@ -400,7 +408,7 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
       a = result[i].pop()
   return result
 
-def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixels, width, sinogram):
+def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixels, width, sinogram, imgSize):
   x, y = matrix.shape
   recImage = np.zeros((x, y), dtype=np.uint32)
   angle = 0
@@ -415,7 +423,7 @@ def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxP
     tmpList = drawArc(x/2, y/2, emiterDistance, matrix, circle, mDetectors, begin+angle, end+angle)
     for j in range(len(sinogram[i])):
       middleX, middleY = tmpList[j]
-      drawRay(middleX, middleY, emiterPositionX, emiterPositionY, recImage, sinogram[i][j])
+      drawRay(middleX, middleY, emiterPositionX, emiterPositionY, recImage, sinogram[i][j], imgSize)
     angle += alpha
   recMax = recImage.max()
   for i in range(len(recImage)):
@@ -423,27 +431,27 @@ def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxP
       recImage[i][j] = (255.0*recImage[i][j])/recMax
   return recImage
 
-img = imread('data/image2.jpg', 0)
+img = imread('data/triangle.jpeg', 0)
 x, y  = img.shape
 if x > y:
   maxPixels = x
 else:
   maxPixels = y
 emiterDistance = 20
-detectorWidth = 15
-alpha = 5
-beta = 50
+detectorWidth = 3
+alpha = 1
+beta = 60
 
 
 emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
-img = drawEdge(img, emiterDistance)
+imgSize, img = drawEdge(img, emiterDistance)
 x, y = img.shape
 circle = drawCircle(x/2, y/2, emiterDistance, img)
 circletmp = circle[:]
 detectors = createDetectors(detectorWidth, circletmp)
 middlePoints = middleDetectors(detectors)
 a = acquisition(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth)
-img4 = reconstruction(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth, a)
+img4 = reconstruction(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth, a, imgSize)
 img3 = np.asmatrix(np.array(a, dtype=np.uint8))
 namedWindow('Original image', WINDOW_NORMAL)
 resizeWindow('Original image', 400, 400)
