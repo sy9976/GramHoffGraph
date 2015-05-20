@@ -405,19 +405,51 @@ def generateFilter(filter_len):
     if(i%2 != 0):
       if (i!=middle_idx):
         filter_list[i]=filter_val(i,middle_idx)
-        #print "i ", i
-        #print "k ", i-middle_idx
         
   filter_list[middle_idx] = 1
   print "szerokosc filtra " , filter_len
   print filter_list
   return filter_list
+
+sin=[1,2,3,4,5,6]
+def generate_sinogram(sin, filter_len):
+  mirrors = int(math.floor(filter_len/2))
+  beg_sin=[]
+  end_sin=[]
+  for i in range(mirrors):
+    beg_sin.append(sin[i])
+    end_sin.append(sin[-i-1])
+  beg_sin.reverse()
+  return beg_sin + sin + end_sin    
   
+def filterFunction(filter_len, sin_row):
+  print "wiersz sinogramu " , sin_row  
+  new_filter = generateFilter(filter_len)
+  new_sin = generate_sinogram(sin,filter_len)
+  out_sin=[]
+  print new_sin
+  for i in range(len(new_sin)-len(new_filter)+1):
+    print 'i', i
+    tmp=0
+    print 'tmp', tmp
+    for j in range(len(new_filter)):
+      print 'i,s', i ,i+j
+      print sin[i]
+      print new_filter[j]
+      tmp=tmp+(new_sin[i+j]*new_filter[j])
+      print 'tmp2', tmp
+    out_sin.append(tmp)
+    print 'append'
+  print out_sin
+  return out_sin  
+    
+filterFunction(3,sin)
   
-def filterFunction(width, sin_row):
-  print "szerokość filtra: " , width  , " wiersz sinogramu " , sin_row  
-  generateFilter(7)
+def filteredSinogram(filter_len, old_sin):
+    tmp_list = []
+    for i in range(len(old_sin)):
+      tmp_list.append(filterFunction(filter_len,old_sin[i]))
+    new_sin = np.asmatrix(np.array(tmp_list, dtype = np.uint8))
+    return new_sin
   
-generate_sin  
-  
-  
+
