@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import math as math
 import Image
 import numpy as np
@@ -390,4 +391,33 @@ def generate(path, emiterDistance, detectorWidth, alpha, beta):
   return img3
     
 def test():
-  print 'tomograph test text'    
+  print 'tomograph test text'   
+  
+def filter_val(i,middle_idx):
+  return (-4) / (math.pow(math.pi,2)) / (math.pow((i-middle_idx),2))  
+ 
+def generateFilter(filter_len):
+  if(filter_len%2==0):
+    filter_len=filter_len+1
+  middle_idx = math.floor(filter_len/2)
+  filter_list = np.zeros(filter_len)
+  for i in range(len(filter_list)):
+    if(i%2 != 0):
+      if (i!=middle_idx):
+        filter_list[i]=filter_val(i,middle_idx)
+        #print "i ", i
+        #print "k ", i-middle_idx
+        
+  filter_list[middle_idx] = 1
+  print "szerokosc filtra " , filter_len
+  print filter_list
+  return filter_list
+  
+  
+def filterFunction(width, sin_row):
+  print "szerokość filtra: " , width  , " wiersz sinogramu " , sin_row  
+  generateFilter(7)
+  
+generate_sin  
+  
+  
