@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import math as math
 import Image
 import numpy as np
@@ -365,44 +366,58 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
       a = result[i].pop()
   return result
 
-img = imread('data/image.jpg', 0)
-x, y = img.shape
-if x > y:
-  maxPixels = x
-else:
-  maxPixels = y
-emiterDistance = 20
-detectorWidth = 20
-alpha = 5
-beta = 50
-
-
-emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
-img = drawEdge(img, emiterDistance)
-x, y = img.shape
-circle = drawCircle(x/2, y/2, emiterDistance, img)
-circletmp = circle[:]
-detectors = createDetectors(detectorWidth, circletmp)
-middlePoints = middleDetectors(detectors)
-a = acquisition(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth)
-img3 = np.asmatrix(np.array(a, dtype=np.uint8))
-namedWindow('X', WINDOW_NORMAL)
-resizeWindow('X', 400, 400)
-namedWindow('A', WINDOW_NORMAL)
-resizeWindow('A', 400, 400)
-while(1):
-  imshow('X', img)
-  imshow('A', img3)
-  key = waitKey(0)
-  if key == 27: #ESC
-    break
-  #elif key == ord('a'):
-  #  alpha += 1
-  #elif key == ord('s'):
-  #  if alpha > 1:
-  #    alpha -= 1
-  #elif key == ord('q'):
-  #  beta += 1
-  #elif key == ord('w'):
-  #  if beta > 1:
-  #    beta -= 1
+def generate(path, emiterDistance, detectorWidth, alpha, beta):
+  img = imread(path, 0)
+  print 'wczytany' , img.shape
+  x, y = img.shape
+  if x > y:
+    maxPixels = x
+  else:
+    maxPixels = y
+  #emiterDistance = 20
+  #detectorWidth = 20s
+  #alpha = 5
+  #beta = 50
+  emiterDistance = calculateEmiterDistance(x, y, emiterDistance)
+  img = drawEdge(img, emiterDistance)
+  x, y = img.shape
+  circle = drawCircle(x/2, y/2, emiterDistance, img)
+  circletmp = circle[:]
+  detectors = createDetectors(detectorWidth, circletmp)
+  middlePoints = middleDetectors(detectors)
+  a = acquisition(img, circle, alpha, beta, middlePoints, emiterDistance, maxPixels, detectorWidth)
+  img3 = np.asmatrix(np.array(a, dtype=np.uint8))
+  print img3.shape
+  return img3
+    
+def test():
+  print 'tomograph test text'   
+  
+def filter_val(i,middle_idx):
+  return (-4) / (math.pow(math.pi,2)) / (math.pow((i-middle_idx),2))  
+ 
+def generateFilter(filter_len):
+  if(filter_len%2==0):
+    filter_len=filter_len+1
+  middle_idx = math.floor(filter_len/2)
+  filter_list = np.zeros(filter_len)
+  for i in range(len(filter_list)):
+    if(i%2 != 0):
+      if (i!=middle_idx):
+        filter_list[i]=filter_val(i,middle_idx)
+        #print "i ", i
+        #print "k ", i-middle_idx
+        
+  filter_list[middle_idx] = 1
+  print "szerokosc filtra " , filter_len
+  print filter_list
+  return filter_list
+  
+  
+def filterFunction(width, sin_row):
+  print "szerokość filtra: " , width  , " wiersz sinogramu " , sin_row  
+  generateFilter(7)
+  
+generate_sin  
+  
+  
