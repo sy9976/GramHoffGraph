@@ -148,10 +148,18 @@ Opis działania algorytmu: \\
 - w pętli, o liczbie kroków równej różnicy współrzędnych na osi wiodącej, następuje wyznaczanie drugiej współrzędnej, natomiast krok na osi wiodącej wykonywany jest w ka żdej iteracji
 - wybór wartości drugiej współrzędnej determinowany jest aktualną wartością błędu(różnicy między rzeczywistą wartością współrzędnej punktu należącego do prostej a możliwymi, całkowitymi wartościami współrzędnych pikseli), która aktualizowana jest w każdej iteracji
 
- -> opis Bresenhama(czy błąd z tej albo z tej to wybiera ten piksel albo ten) -> w każdej iteracji do algorytmu Brasenhama podawana jest pozycja emitera oraz środki detektorów należące do aktualnego łuku (iterowanie po liście środków) -> wyznaczamy promień (piksele należące do promienia) -> Transformata Radona -> sumowanie wartości (posumowane/maks pikseli *255) wartość na detektorze, wartości na wszystkich środkach detektorów to jeden wiersz do sinogramu -> powyższe powtórzone 360/alfa razy co wpływa na rozmiar sinogramu 
+- do tak zaimplementowanego algorytmu Bresenham'a, w każdej iteracji (iterowanie po liście środków detektorów należących do aktualnego łuku) podawane są pozycje emitera oraz środka detektora
+- dla każdej takiej pary wyznaczany jest promień (piksele należący do promienia)
 
-\item Rekonstrukcja obrazu korzysta z wcześniejszych metod, jednak zmienia się kierunek emisji (emisja następuje od macierzy detektorów w kierunku emitera, który staje się odbiornikiem)
-W procesie rekonstrukcji bardzo ważnym elementem jest filtrowanie sinogramu, dzięki czemu obraz staje się dokładniejszy i ostrzejszy.
+
+TODO
+- Transformata Radona
+-> sumowanie wartości (posumowane/maks pikseli *255) wartość na detektorze, wartości na wszystkich środkach detektorów to jeden wiersz do sinogramu 
+-> powyższe powtórzone 360/alfa razy co wpływa na rozmiar sinogramu 
+
+\item Rekonstrukcja obrazu korzysta z wcześniejszych metod, jednak zmienia się kierunek emisji (emisja następuje od macierzy detektorów w kierunku emitera, który staje się odbiornikiem). \\
+Oto lista kroków wykonywana w trakcie rekonstrukcji: \\
+- W procesie rekonstrukcji bardzo ważnym elementem jest filtrowanie sinogramu, dzięki czemu obraz staje się dokładniejszy i ostrzejszy.
 Filtr jest wektorem, który tworzony jest zgodnie z poniższym wzorem:
 \[
  h(k) =
@@ -161,7 +169,12 @@ Filtr jest wektorem, który tworzony jest zgodnie z poniższym wzorem:
    \frac{-4/\pi^2}{k^2} & \text{dla } k\% 2 = 1 \\
   \end{cases}
 \]
-tworzenie filtra (wzorki itp) -> filtr na każdy wiersz -> na macierz detektorów wczytywane są kolejno wiersze sinogramu w każdej iteracji -> wczytanie wiersza na macierz -> wartość ze środka detektora jest dodawana do każdego z pikseli na drodze -> na końcu wartości we wszystkich komórkach dzielone przez największą wartość w macierzy
+- tak przygotowany filtr jest stosowany na każdym wierszu sinogramu, jednak nim to nastąpi, aktualny wiersz sinogramu zostaje zmodyfikowany w taki sposób, że na krańcach wiersza zostaje doklejone lustrzane odbicie ostatnich $podłoga(n/2)$ elementów, dzięki czemu przefiltrowany wiersz sinogramu nie zmienia swojej długości \\
+- samo filtrowanie polega na wyrównaniu początku filtra z początkiem filtrowanego wiersza, a następnie przemnożeniu odpowiadająych sobie pozycji i zwróceniu sumy \\
+- powyższy krok jest powtarzany do (długość wiersza - długość filtra) razy \\
+- przefiltrowany wiersz sinogramu w procesie rekonstrukcji wczytany zostaje na macierz detektorów \\
+- następuje dodanie wartości ze środka każdego detektora do każdego piksela na drodze od środka detektora do emitera (odbywa się to opisanym wcześniej algorytmem Bresenham'a) \\
+- ostatnim krokiem jest podzielenie każdej macierzy przez największą wartość w macierzy 
 \end{itemize}
 
 
