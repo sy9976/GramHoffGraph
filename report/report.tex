@@ -139,8 +139,14 @@ $<e + 180 - (\beta/2) ; e + 180 + (\beta/2)>$
 gdzie $e$ to aktualna pozycja emitera\\
 - kolejne kroki algorytmu korzystają z algorytmu Bresenham'a. 
 Służy on do rasteryzacji krzywych płaskich, czyli do jak najlepszego ich obrazowania na siatce pikseli.
-W naszym zastosowaniu służy do wyznaczania pikseli obrazu, przez które przechodzi promień (pikseli leżących na odcinku od emitera do środka obrazu) oraz wyznaczenia wartości pochłoniętego promieniowania.
-
+W naszym zastosowaniu służy do wyznaczania pikseli obrazu, przez które przechodzi promień (pikseli leżących na odcinku od emitera do środka obrazu) oraz wyznaczenia wartości pochłoniętego promieniowania. \\
+Algorytm można zastosować do rysowania odcinka, ale także okręgu czy elipsy. \\
+Opis działania algorytmu: \\
+- na wejściu algorytmu podajemy współrzędne punktów odcinka pomiędzy którymi mają zostać wyznaczone piksele należace do tego odcinka \\
+- na podstawie różnic pomiędzy współrzędnymi na poszczególnych osiach wyznaczane są oś wiodąca oraz kierunek wyznacznia kolejnych pikseli
+- oś, dla której różnica wartości współrzędnej punktu jest większa, jest osią wiodącą
+- w pętli, o liczbie kroków równej różnicy współrzędnych na osi wiodącej, następuje wyznaczanie drugiej współrzędnej, natomiast krok na osi wiodącej wykonywany jest w ka żdej iteracji
+- wybór wartości drugiej współrzędnej determinowany jest aktualną wartością błędu(różnicy między rzeczywistą wartością współrzędnej punktu należącego do prostej a możliwymi, całkowitymi wartościami współrzędnych pikseli), która aktualizowana jest w każdej iteracji
 
  -> opis Bresenhama(czy błąd z tej albo z tej to wybiera ten piksel albo ten) -> w każdej iteracji do algorytmu Brasenhama podawana jest pozycja emitera oraz środki detektorów należące do aktualnego łuku (iterowanie po liście środków) -> wyznaczamy promień (piksele należące do promienia) -> Transformata Radona -> sumowanie wartości (posumowane/maks pikseli *255) wartość na detektorze, wartości na wszystkich środkach detektorów to jeden wiersz do sinogramu -> powyższe powtórzone 360/alfa razy co wpływa na rozmiar sinogramu 
 
