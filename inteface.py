@@ -139,6 +139,7 @@ def generate_sin():
    #sin_image.thumbnail(size, Image.ANTIALIAS)
    sin_image.resize((400, 300),Image.ANTIALIAS)
    #sin_image = Image.open(photo_path)
+   #sin_image.thumbnail(size, Image.ANTIALIAS)
    sin_data = ImageTk.PhotoImage(sin_image)
    global sin_display
    sin_display.destroy()
@@ -166,8 +167,8 @@ def reconstruct_sin():
    global out_image
    global out_data
    out_image = Image.fromarray(arr.astype(np.uint8))
-   out_data = ImageTk.PhotoImage(out_image)
-   #out_data.resize((400, 300),Image.ANTIALIAS)
+   ori_data = ImageTk.PhotoImage(out_image)
+   out_data = ori_data.resize((400, 300),Image.ANTIALIAS)
    global output_display
    output_display.destroy()
    output_display = Label(output_frame, image=out_data)
