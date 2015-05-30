@@ -431,7 +431,7 @@ def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxP
       recImage[i][j] = (255.0*recImage[i][j])/recMax
   return recImage
 
-img = imread('data/triangle.jpeg', 0)
+img = imread('data/kwadraty.png', 0)
 x, y  = img.shape
 if x > y:
   maxPixels = x

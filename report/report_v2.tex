@@ -1,0 +1,104 @@
+\documentclass[A_4paper,12pt]{article}
+\usepackage{polski}
+%\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
+%\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
+\usepackage{graphicx, xcolor} % Required for the inclusion of images
+\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+\usepackage[utf8]{inputenc}
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\usepackage{svg}
+\usepackage{geometry}
+\usepackage{afterpage}
+\usepackage{caption}
+\usepackage{layout}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{capt-of}
+
+\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by 
+%\usepackage{times} % Uncomment to use the Times New Roman font
+
+\title{Laboratorium Informatyki w Medycynie \\ 3 punkt kontrolny} % Title
+\author{Szymon \textsc{Gramza} 109785  \\ Przemysław \textsc{Hoffmann} 109786} % Author name
+
+\date{22.05.2015r.} % Date for the report
+
+\begin{document}
+
+\maketitle % Insert the title, author and date
+
+\begin{center}
+\begin{tabular}{l r}
+Prowadzący: & mgr inż. Tomasz Pawlak \\
+Temat zadania: & symulator tomografu komputerowego
+\end{tabular}
+\end{center}
+
+\newpage
+
+\section{Opis problemu}
+Tematem projektu zaliczeniowego jest symulator tomografu komputerowego.
+Według wymagań symulator ten powinien pozwalać na:
+\begin{itemize}
+\item akwizycję rzutów obrazów 1D z zadanego obrazu 2D
+\item prezentacje użytkownikowi tych rzutów
+\item rekonstrukcję obrazów 2D z rzutów 1D przy użyciu odwrotnej transformaty Radona
+\item prezentację zrekonstruowanego obrazu
+\end{itemize}
+
+\subsection{Zasada działania}
+Tomograf w ogólności składa się z lampy rentgenowskiej, będącej emiterem wiązki promieniowania rentegnowskiego, stołu na którym leży pacjent(badany obiekt) oraz  detektora znajdującego się po przeciwległej stronie stołu względem emitera.
+Zasada działanie tomografu opiera się na pochłanianiu promieniowania rentgenowskiego przez ludzkie narządy.
+Niestety, narządy organizmu ludzkiego wzajemnie się przysłaniają, co prowadzi do nakładania się na siebie obrazów poszczególnych struktur wewnętrznych człowieka(przy przepuszczeniu jednej wiązki).
+Zauważono, że wykonanie większej (niż jeden) liczby zdjęć radiologicznych z różnych pozycji lampy i detektora względem badanego obiektu, a następnie obejrzenie zdjęć w stroboskopie prowadzi do poprawienia jakości obrazu. Wprowadzono więc ruch lampy rentgenowskiej detektora względem obiektu.
+
+\subsubsection{Generacje tomografów}
+Od czasów wynalezienia tomografu zmieniały koncepcje i usprawnienia mające na celu zwiększenie ich szybkości i wydajności.
+W związku z tym powastała poniższa klasyfikacja na generacje:
+\begin{itemize}
+\item Generacja I - skaner składał się z pojedynczego emitera i detektora. Lampa i detektor wykonywały ruchy translacyjne i rotacyjne.
+\item Generacja II - zwiekszono liczbę detektorów co zmniejszyło liczbę ruchów translacyjnych lampy.
+\item Generacja III - wyeliminowano ruch translacyjny poprzez rozmieszczenie detektorów na łuku pierścienia obracającego się razem z lampą dookoła pacjenta.
+\item Generacja IV - detektory umieszczone zostały na stałe na pierścienu, ruch obrotowy wykonuje tylko lampa.
+\end{itemize}
+
+\section{Opis rozwiązania}
+Poniżej znajduje się kilka pojęć, których zrozumienienie i wykorzystanie wymagane jest do rozwiązania projektu.
+\subsubsection{Transformata Radona}
+W roku 1905 W. Radon udowodnił następujące twierdzenie: „Obraz obiektu dwuwymiarowego można zrekonstruować na podstawie nieskończonej ilości rzutów jednowymiarowych”. Rzutowanie to odpowiada wykonywaniu na obiekcie pewnej transformacji, nazywanej Transformacją Radona.
+Po dokonaniu transformacji z otrzymanych wyników otrzymyje się sinogram, czyli wykres będący wizualizacją owych wyników.
+Dokonanie na sinogramie Odwrotnej Transformacji Radona umożliwia zrekonstruowanie obrazu obiektu. Zrekonstruowany obraz zawierał będzie pewne zniekształcenia, lecz wraz ze wzrostem liczby projekcji powinien co raz bardziej odzwierciedlać obraz sprzed transformacji.
+
+\subsubsection{Algorytm Bresenham'a}
+Służy do wyznaczania pikseli leżących na odcinku między dwoma punktami. W naszym zastosowaniu służy do wyznaczania pikseli obrazu, przez które przechodzi promień oraz wyznaczenia wartości pochłoniętego promieniowania.
+
+\subsubsection{Technologia}
+Program zaimplementowany zostanie w języku Python(wersja 2.7) z wykorzystaniem następujących bibliotek:
+\begin{itemize}
+\item skimage - wczytanie obrazu
+\item numpy - działania na macierzach
+\end{itemize}
+\newpage
+Przyjęto model tomografu o następujących parametrach:
+\begin{itemize}
+\item alfa - kąt o który obracany jest układ emiterów
+\item l - odległość układu emiterów od macierzy obrazu
+\item szerokość wiązki
+\item szerokość filtra
+\end{itemize}
+
+\section{Plan dalszej pracy}
+Przyjęto stworzenie symulatora tomografu czwartej generacji. Zaimplementowano już algorytm Bresenham'a, wyznaczający piksele w macierzy znajdujące się na drodze  "promienia". Wczytano obraz w skali szarości. Obecnie prace trwają nad sposobem implementacji transformaty Radona.
+Do wykonania pozostało:
+\begin{itemize}
+\item implementacja transformaty Radona pozwalajaca na wygodny dobór parametrów
+\item implementacja filtrów
+\item budowa interfejsu do zmiany parametrów
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{sample}
+
+\end{document}

@@ -8,7 +8,7 @@ from tkFileDialog import askopenfilename
 import tkFileDialog
 import tomograph
 def get_picture_info():
-  return """Tutaj info"""
+  return """Wczytany obraz"""
 root = Tk() #initialize Tkinter
 root.title("GramHoffGraph")
 size = 400, 400
@@ -23,7 +23,7 @@ sin_frame.grid(row=0,column=2)
 output_frame = LabelFrame(root, text='output data')
 output_frame.grid(row=0,column=3)
 global photo_path
-photo_path='data/image.jpg'
+photo_path='data/kwadraty.png'
 global sin_path
 sin_path='data/blank.jpg'
 #INPUT             
@@ -96,7 +96,7 @@ global sin_display
 sin_display = Label(sin_frame, image=sin_data)
 sin_display.grid(row=0, column=0)
 sin_display.image=sin_data
-explanation = """Rowerogram"""
+explanation = """Sinogram"""
 global sin_info
 label_info=get_picture_info()
 sin_info = Label(sin_frame, 
@@ -130,6 +130,7 @@ def generate_sin():
    print "  Detector = " + str(detector.get()) + "  Filtr " + str(filter_value.get())
    global sin_image  
    arr=tomograph.generate(photo_path, emiter.get(), detector.get(), alpha.get(), beta.get())
+   #arr=tomograph.filteredSinogram(5, arr1)
    #sin_image = Image.open(photo_path)
    print arr.shape
    global sin_data
@@ -155,27 +156,70 @@ def generate_sin():
    sin_info.grid(row=1, column=0)
    print photo_path
    
+def reconstruct_sin():
+   print "Alfa = ", alpha.get(), "  Beta = ", beta.get(), "  Emiter = ", emiter.get()
+   print "  Detector = ", detector.get(), "  Filtr ", filter_value.get(), "Szerokość filtra " , filter_var.get()
+   global sin_image  
+   arr=tomograph.generate_acq(photo_path, emiter.get(), detector.get(), alpha.get(), beta.get(),filter_var.get() ,filter_value.get())
+   #sin_image = Image.open(photo_path)
+   print arr.shape
+   global out_image
+   global out_data
+   out_image = Image.fromarray(arr.astype(np.uint8))
+   out_data = ImageTk.PhotoImage(out_image)
+   #out_data.resize((400, 300),Image.ANTIALIAS)
+   global output_display
+   output_display.destroy()
+   output_display = Label(output_frame, image=out_data)
+   output_display.grid(row=0, column=0)
+   output_display.image=out_data
+   explanation = """Zrekonstruowany obraz"""
+   label_info=get_picture_info()
+   global output_info
+   output_info = Label(output_frame, 
+                 justify=LEFT,
+                 padx = 10, 
+                 fg='green',
+                 text=explanation)
+   output_info.grid(row=1, column=0)
+   print photo_path
+   
 filter_value = IntVar()
 filter_chck = Checkbutton(params_frame, 
-                text='filtr Hoffmanna', 
+                text='filtr', 
                 variable = filter_value,
                 justify=LEFT,
                 padx=20).grid(row=0, column=0, sticky=E, columnspan=2)
+                
+filter_var = IntVar()
+filter_slider = Scale(params_frame,
+    from_=1, 
+    to=25, 
+    resolution=1,
+    variable=filter_var,
+    orient=HORIZONTAL)
+filter_slider.set(7)
+filter_slider.grid(row=1, column=1)
+  
+filter_lbl = Label(params_frame, 
+           justify=LEFT,
+           padx = 10, 
+           text='szerokość filtra').grid(row=1, column=0) 
 
 alpha = IntVar()
-slider = Scale(params_frame,
+alpha_slider = Scale(params_frame,
     from_=1, 
     to=180, 
     resolution=1,
     variable=alpha,
     orient=HORIZONTAL)
-slider.set(5)
-slider.grid(row=1, column=1)
+alpha_slider.set(1)
+alpha_slider.grid(row=2, column=1)
   
 alpha_lbl = Label(params_frame, 
            justify=LEFT,
            padx = 10, 
-           text='kąt alfa').grid(row=1, column=0) 
+           text='kąt alfa').grid(row=2, column=0) 
 
 beta = IntVar()
 beta_slider = Scale(params_frame,
@@ -185,12 +229,12 @@ beta_slider = Scale(params_frame,
     variable=beta,
     orient=HORIZONTAL)
 beta_slider.set(50)
-beta_slider.grid(row=2, column=1)
+beta_slider.grid(row=3, column=1)
   
 beta_lbl = Label(params_frame, 
            justify=LEFT,
            padx = 10, 
-           text='kąt beta').grid(row=2, column=0) 
+           text='kąt beta').grid(row=3, column=0) 
            
 detector = IntVar()
 detector_slider = Scale(params_frame,
@@ -199,13 +243,13 @@ detector_slider = Scale(params_frame,
     resolution=1,
     variable=detector,
     orient=HORIZONTAL)
-detector_slider.set(10)
-detector_slider.grid(row=3, column=1)
+detector_slider.set(3)
+detector_slider.grid(row=4, column=1)
   
 detector_lbl = Label(params_frame, 
            justify=LEFT,
            padx = 10, 
-           text='szerokość detektora').grid(row=3, column=0) 
+           text='szerokość detektora').grid(row=4, column=0) 
            
 emiter = IntVar()
 emiter_slider = Scale(params_frame,
@@ -215,32 +259,42 @@ emiter_slider = Scale(params_frame,
     variable=emiter,
     orient=HORIZONTAL)
 emiter_slider.set(20)
-emiter_slider.grid(row=4, column=1)
+emiter_slider.grid(row=5, column=1)
   
 emiter_lbl = Label(params_frame, 
            justify=LEFT,
            padx = 10, 
-           text='odległość emitera').grid(row=4, column=0) 
+           text='odległość emitera').grid(row=5, column=0) 
            
 run = Button(params_frame,
     text="Generuj",
     command=generate_sin,
     padx=60).grid(row=6, column=0,columnspan=2)
-     
+
+run = Button(params_frame,
+    text="Rekonstukcja",
+    command=reconstruct_sin,
+    padx=60).grid(row=7, column=0,columnspan=2)     
+
+
 
 #OUTPUT
 out_image = Image.open('data/blank.jpg')
 out_image.thumbnail(size, Image.ANTIALIAS)
 out_data = ImageTk.PhotoImage(out_image)
+global output_display
 output_display = Label(output_frame, image=out_data)
 output_display.grid(row=0, column=0)
-output_display.image=data
+output_display.image=out_data
 explanation = """Zrekonstruowany obraz"""
+label_info=get_picture_info()
+global output_info
 output_info = Label(output_frame, 
               justify=LEFT,
               padx = 10, 
               fg='green',
-              text=explanation).grid(row=1, column=0)
+              text=explanation)
+output_info.grid(row=1, column=0)
 
 def save_output():
     print 'save output image'
