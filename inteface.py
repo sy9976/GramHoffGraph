@@ -7,6 +7,7 @@ import numpy as np
 from tkFileDialog import askopenfilename
 import tkFileDialog
 import tomograph
+from cv2 import *
 def get_picture_info():
   return """Wczytany obraz"""
 root = Tk() #initialize Tkinter
@@ -139,6 +140,7 @@ def generate_sin():
    #sin_image.thumbnail(size, Image.ANTIALIAS)
    sin_image.resize((400, 300),Image.ANTIALIAS)
    #sin_image = Image.open(photo_path)
+   #sin_image.thumbnail(size, Image.ANTIALIAS)
    sin_data = ImageTk.PhotoImage(sin_image)
    global sin_display
    sin_display.destroy()
@@ -155,6 +157,14 @@ def generate_sin():
                  text=explanation)
    sin_info.grid(row=1, column=0)
    print photo_path
+   namedWindow('Sinogram', WINDOW_NORMAL)
+   resizeWindow('Sinogram', 400, 400)
+   print arr.dtype
+   while(1):
+    imshow('Sinogram', arr)
+    key = waitKey(0)
+    if key == 27:
+       break
    
 def reconstruct_sin():
    print "Alfa = ", alpha.get(), "  Beta = ", beta.get(), "  Emiter = ", emiter.get()
@@ -167,7 +177,7 @@ def reconstruct_sin():
    global out_data
    out_image = Image.fromarray(arr.astype(np.uint8))
    out_data = ImageTk.PhotoImage(out_image)
-   #out_data.resize((400, 300),Image.ANTIALIAS)
+   #out_data = ori_data.resize((400, 300),Image.ANTIALIAS)
    global output_display
    output_display.destroy()
    output_display = Label(output_frame, image=out_data)
@@ -183,6 +193,14 @@ def reconstruct_sin():
                  text=explanation)
    output_info.grid(row=1, column=0)
    print photo_path
+   namedWindow('Reconstruction', WINDOW_NORMAL)
+   resizeWindow('Reconstruction', 400, 400)
+   print arr.dtype
+   while(1):
+     imshow('Reconstruction', arr.astype(np.uint8))
+     key = waitKey(0)
+     if key == 27:
+       break
    
 filter_value = IntVar()
 filter_chck = Checkbutton(params_frame, 

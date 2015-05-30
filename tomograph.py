@@ -370,6 +370,7 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
   end = alpha + 180 + beta
   result = []
   width = 99999999
+  maxValue = 0
   if (len(a) == 3):
     x, y, z = matrix.shape
     while angle <= 360:
@@ -399,7 +400,11 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
         middleX, middleY = tmpList[i]
         absorption = drawRayGray(int(emiterPositionX), int(emiterPositionY), int(middleX), int(middleY), matrix)
         normalAbsorption = int(255.0*(absorption/(255.0*maxPixels)))
+        if normalAbsorption > 255:
+          normalAbsorption = 255
         tmp.append(normalAbsorption)
+        if normalAbsorption > maxValue:
+          maxValue = normalAbsorption
       angle += alpha
       result.append(tmp)
       if (len(tmpList) < width):
@@ -407,6 +412,7 @@ def acquisition(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixe
   for i in range(len(result)):
     while (len(result[i])>width):
       a = result[i].pop()
+  #print "ACQ: max value: ", maxValue
   return result
 
 def reconstruction(matrix, circle, alpha, beta, mDetectors, emiterDistance, maxPixels, width, sinogram, imgSize):
@@ -507,7 +513,7 @@ def generateFilter(filter_len):
         
   filter_list[middle_idx] = 1
   #print "szerokosc filtra " , filter_len
-  print filter_list
+  #print filter_list
   return filter_list
 
 
@@ -523,9 +529,8 @@ def generate_sinogram(sin, filter_len):
   beg_sin.reverse()
   return beg_sin + sin + end_sin  
     
-#sin=[1,2,3,4,5,6,7,8,9]
-#print generate_sinogram(sin,7)  
-  
+#g = generate_sinogram(sin,7)  
+#filterFunction(5, sin)  
   
 def filterFunction(filter_len, sin_row):
   #print "wiersz sinogramu " , sin_row  
@@ -541,15 +546,23 @@ def filterFunction(filter_len, sin_row):
       #print 'i,s', i ,i+j
       #print sin_row[i]
       #print new_filter[j]
+      #print "Mnoze ", new_sin[i+j], new_filter[j]
       tmp=tmp+(new_sin[i+j]*new_filter[j])
       #print 'tmp2', tmp
-    out_sin.append(tmp)
+    #print "TMP: ", tmp
+    if tmp < 0:
+      tmp = 0
+    out_sin.append(int(tmp))
     #print 'append'
   #print out_sin
   return out_sin  
     
-#filterFunction(3,sin)
-  
+#sin=[255, 144, 111, 120, 200, 50, 40, 78, 90, 75, 73, 120, 120]
+#print sin
+#filterFunction(3, sin)
+#filterFunction(5,sin)
+#filterFunction(9, sin)
+
 def filteredSinogram(filter_len, old_sin):
     tmp_list = []
     #print old_sin.dtype
